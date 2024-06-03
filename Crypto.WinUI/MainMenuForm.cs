@@ -1,4 +1,4 @@
-using Crypto.Core;
+using Crypto.Core.Services;
 using ScottPlot;
 using System.Globalization;
 

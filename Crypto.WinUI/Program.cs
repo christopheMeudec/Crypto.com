@@ -1,4 +1,4 @@
-using Crypto.Core;
+using Crypto.Core.Services;
 using Crypto.Core.Settings;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

@@ -1,57 +1,71 @@
-﻿using Crypto.Core;
+﻿using Crypto.Core.Services;
 using Microsoft.Extensions.Hosting;
-using System.Globalization;
 
 namespace Crypto.Console;
 
 public class TimedHostedService : IHostedService, IDisposable
 {
-    private Timer _timer;
-    private Task _executingTask;
-    private double expectedValue;
-    private readonly CancellationTokenSource _stoppingCts = new CancellationTokenSource();
-    private readonly ICryptoService _cryptoService;
+    private Timer _timerDataCollector;
+    private Task _executingTaskDataCollector;
 
-    public TimedHostedService(ICryptoService cryptoService)
+    private Timer _timerWatcher;
+    private Task _executingTaskWatcher;
+
+    private readonly CancellationTokenSource _stoppingCts = new CancellationTokenSource();
+    private readonly IDataCollectorService _dataCollectorService;
+    private readonly IWatcherService _watcherService;
+
+    public TimedHostedService(IDataCollectorService dataCollectorService, IWatcherService watcherService)
     {
-        _cryptoService = cryptoService;
+        _dataCollectorService = dataCollectorService;
+        _watcherService = watcherService;
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        // _logger.LogInformation("Timed Background Service is starting.");
-        _timer = new Timer(ExecuteTask, null, TimeSpan.FromSeconds(30), TimeSpan.FromMilliseconds(-1));
+        _timerDataCollector = new Timer(ExecuteDataCollectorTask, null, TimeSpan.FromSeconds(30), TimeSpan.FromMilliseconds(-1));
+        //_timerWatcher = new Timer(ExecuteTaskWatcher, null, TimeSpan.FromSeconds(30), TimeSpan.FromMilliseconds(-1));
         return Task.CompletedTask;
     }
 
-    private void ExecuteTask(object state)
+    private void ExecuteDataCollectorTask(object state)
     {
-        _timer?.Change(Timeout.Infinite, 0);
-        _executingTask = ExecuteTaskAsync(_stoppingCts.Token);
+        _timerDataCollector?.Change(Timeout.Infinite, 0);
+        _executingTaskDataCollector = ExecuteTaskDataCollectorAsync(_stoppingCts.Token);
     }
 
-    private async Task ExecuteTaskAsync(CancellationToken cancellationToken)
+    private void ExecuteTaskWatcher(object state)
     {
-        var valuation = await _cryptoService.GeValuations("CKBUSD-INDEX", 25, cancellationToken);
-        var currentValue = double.Parse(valuation.OrderByDescending(o => o.Timestamp).First().Value, CultureInfo.InvariantCulture);
+        _timerWatcher?.Change(Timeout.Infinite, 0);
+        _executingTaskWatcher = ExecuteTaskWatcherAsync(_stoppingCts.Token);
+    }
 
-        if (currentValue > expectedValue)
-        {
-            // Alert
-        }
+    private async Task ExecuteTaskWatcherAsync(CancellationToken cancellationToken)
+    {
+        await _watcherService.CheckChanges(cancellationToken);
 
-        _timer.Change(TimeSpan.FromMinutes(2), TimeSpan.FromMilliseconds(-1));
+        _timerWatcher.Change(TimeSpan.FromMinutes(2), TimeSpan.FromMilliseconds(-1));
+    }
+
+    private async Task ExecuteTaskDataCollectorAsync(CancellationToken cancellationToken)
+    {
+        await _dataCollectorService.CollectDataAsync(cancellationToken);
+
+        _timerDataCollector.Change(TimeSpan.FromMinutes(2), TimeSpan.FromMilliseconds(-1));
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
         // _logger.LogInformation("Timed Background Service is stopping.");
-        _timer?.Change(Timeout.Infinite, 0);
+        _timerDataCollector?.Change(Timeout.Infinite, 0);
+        _timerWatcher?.Change(Timeout.Infinite, 0);
+
         // Stop called without start
-        if (_executingTask == null)
+        if (_executingTaskDataCollector == null && _executingTaskWatcher == null)
         {
             return;
         }
+
         try
         {
             // Signal cancellation to the executing method
@@ -60,12 +74,14 @@ public class TimedHostedService : IHostedService, IDisposable
         finally
         {
             // Wait until the task completes or the stop token triggers
-            await Task.WhenAny(_executingTask, Task.Delay(Timeout.Infinite, cancellationToken));
+            await Task.WhenAny(_executingTaskDataCollector, _executingTaskWatcher, Task.Delay(Timeout.Infinite, cancellationToken));
         }
     }
+
     public void Dispose()
     {
         _stoppingCts.Cancel();
-        _timer?.Dispose();
+        _timerDataCollector?.Dispose();
+        _timerWatcher?.Dispose();
     }
 }

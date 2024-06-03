@@ -2,7 +2,7 @@
 using Crypto.Core.Dto;
 using Crypto.Core.Settings;
 
-namespace Crypto.Core;
+namespace Crypto.Core.Services;
 
 //https://exchange-docs.crypto.com/exchange/v1/rest-ws/index.html#introduction
 public class CryptoService : ICryptoService
@@ -20,28 +20,28 @@ public class CryptoService : ICryptoService
 
     public async Task<List<InstrumentsResponseDto>> GetInstruments(CancellationToken cancellationToken = default)
     {
-        var result = await _httpClient.GetFromJsonAsync<CryptoResponseDto<List<InstrumentsResponseDto>>>(CryptoConstants.InstrumentsUrl);
+        var result = await _httpClient.GetFromJsonAsync<CryptoResponseDto<List<InstrumentsResponseDto>>>(CryptoConstants.InstrumentsUrl, cancellationToken: cancellationToken);
 
         return result.Result.Data;
     }
 
     public async Task<List<TickersResponseDto>> GetTickers(CancellationToken cancellationToken = default)
     {
-        var result = await _httpClient.GetFromJsonAsync<CryptoResponseDto<List<TickersResponseDto>>>(CryptoConstants.TickersUrl);
+        var result = await _httpClient.GetFromJsonAsync<CryptoResponseDto<List<TickersResponseDto>>>(CryptoConstants.TickersUrl, cancellationToken: cancellationToken);
 
         return result.Result.Data;
     }
 
     public async Task<TickersResponseDto> GetTicker(string instrumentName, CancellationToken cancellationToken = default)
     {
-        var result = await _httpClient.GetFromJsonAsync<CryptoResponseDto<List<TickersResponseDto>>>(CryptoConstants.TickersUrl + $"?instrument_name={instrumentName}");
+        var result = await _httpClient.GetFromJsonAsync<CryptoResponseDto<List<TickersResponseDto>>>(CryptoConstants.TickersUrl + $"?instrument_name={instrumentName}", cancellationToken: cancellationToken);
 
         return result.Result.Data.First();
     }
 
     public async Task<List<ValuationsResponseDto>> GeValuations(string instrumentName, int points = 100, CancellationToken cancellationToken = default)
     {
-        var result = await _httpClient.GetFromJsonAsync<CryptoResponseDto<List<ValuationsResponseDto>>>(CryptoConstants.ValuationsUrl + $"?instrument_name={instrumentName}&valuation_type=index_price&count={points}");
+        var result = await _httpClient.GetFromJsonAsync<CryptoResponseDto<List<ValuationsResponseDto>>>(CryptoConstants.ValuationsUrl + $"?instrument_name={instrumentName}&valuation_type=index_price&count={points}", cancellationToken: cancellationToken);
 
         return result.Result.Data;
     }
