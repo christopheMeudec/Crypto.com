@@ -11,11 +11,11 @@ public class DataRepository(DataContext dataContext) : IDataRepository
         return await dataContext.Tokens.ToListAsync(cancellationToken);
     }
 
-    public async Task AddCoinValue(string instrumentationName, decimal currentValue, CancellationToken cancellationToken)
+    public async Task AddTokenValue(string tokenCode, decimal currentValue, CancellationToken cancellationToken)
     {
-        await dataContext.TokensHistory.AddAsync(new TokenHistoryEntity
+        await dataContext.TokensValueHistory.AddAsync(new TokenValueHistoryEntity
         {
-            TokenCode = instrumentationName,
+            TokenCode = tokenCode,
             RecordedDate = DateTime.Now,
             Value = currentValue
         }, cancellationToken);
@@ -27,5 +27,5 @@ public class DataRepository(DataContext dataContext) : IDataRepository
 public interface IDataRepository
 {
     Task<IEnumerable<TokenEntity>> GetCoins(CancellationToken cancellationToken);
-    Task AddCoinValue(string instrumentationName, decimal currentValue, CancellationToken cancellationToken);
+    Task AddTokenValue(string tokenCode, decimal currentValue, CancellationToken cancellationToken);
 }

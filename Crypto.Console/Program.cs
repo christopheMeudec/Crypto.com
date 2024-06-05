@@ -1,4 +1,6 @@
 ﻿using Crypto.Console;
+using Crypto.Console.Extensions;
+using Crypto.Core.Persistence;
 using Crypto.Core.Repositories;
 using Crypto.Core.Settings;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,10 +22,15 @@ var host = new HostBuilder()
     })
     .ConfigureServices((hostContext, services) =>
     {
-        services.AddSingleton<CryptoSettings>(sp => new CryptoSettings("https://uat-api.3ona.co/", "", ""));
+        var cryptoSettings = hostContext.Configuration.GetSection("CryptoSettings").Get<CryptoSettings>();
+        services.AddSingleton<CryptoSettings>(cryptoSettings);
+
+        services.AddScoped<DataContext>();
+        services.AddScoped<IDataRepository, DataRepository>();
+
+        services.AddHttpClient<ICryptoService, CryptoService>();
 
         services.AddScoped<ICryptoService, CryptoService>();
-        services.AddScoped<IDataRepository, DataRepository>();
         services.AddScoped<IDataCollectorService, DataCollectorService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IWatcherService, WatcherService>();
@@ -35,4 +42,6 @@ var host = new HostBuilder()
     .Build();
 
 //run the host
-await host.RunAsync();
+await host
+    .SeedData()
+    .RunAsync();

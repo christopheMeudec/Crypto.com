@@ -2,10 +2,9 @@
 
 public class TokenEntity
 {
-    public required string TokenCode { get; set; }
-    public decimal PurchaseValue { get; set; }
-    public decimal CurrentValue => History.MaxBy(h => h.RecordedDate)?.Value ?? PurchaseValue;
-
-
-    public ICollection<TokenHistoryEntity> History { get; set; }
+    public string TokenCode { get; set; }
+    
+    public ICollection<TokenExchangeHistoryEntity> ExchangeHistory { get;  } = new List<TokenExchangeHistoryEntity>();
+    public ICollection<TokenValueHistoryEntity> ValueHistory { get;  } = new List<TokenValueHistoryEntity>();
 }
+

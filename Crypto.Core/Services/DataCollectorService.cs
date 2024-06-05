@@ -10,10 +10,10 @@ public class DataCollectorService(IDataRepository dataRepository, ICryptoService
     {
         foreach (var currentCoin in await dataRepository.GetCoins(cancellationToken))
         {
-            var valuation = await cryptoService.GeValuations(currentCoin.TokenCode, 25, cancellationToken);
-            var currentValue = double.Parse(valuation.OrderByDescending(o => o.Timestamp).First().Value, CultureInfo.InvariantCulture);
+            var valuation = await cryptoService.GeValuations(currentCoin.TokenCode, 5, cancellationToken);
+            var currentValue = decimal.Parse(valuation.OrderByDescending(o => o.Timestamp).First().Value, CultureInfo.InvariantCulture);
 
-            await dataRepository.AddCoinValue(currentCoin.TokenCode, currentValue, cancellationToken);
+            await dataRepository.AddTokenValue(currentCoin.TokenCode, currentValue, cancellationToken);
         }
     }
 }

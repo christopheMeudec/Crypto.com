@@ -23,15 +23,38 @@ namespace Crypto.Core.Persistence.Migrations
                         .HasMaxLength(25)
                         .HasColumnType("VARCHAR");
 
-                    b.Property<decimal>("PurchaseValue")
-                        .HasColumnType("TEXT");
-
                     b.HasKey("TokenCode");
 
                     b.ToTable("Tokens");
                 });
 
-            modelBuilder.Entity("Crypto.Core.Entities.TokenHistoryEntity", b =>
+            modelBuilder.Entity("Crypto.Core.Entities.TokenExchangeHistoryEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ExchangeType")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("RecordedDate")
+                        .HasColumnType("DATETIME");
+
+                    b.Property<string>("TokenCode")
+                        .HasMaxLength(25)
+                        .HasColumnType("VARCHAR");
+
+                    b.Property<double>("Value")
+                        .HasColumnType("REAL");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TokenCode");
+
+                    b.ToTable("TokensExchangeHistory");
+                });
+
+            modelBuilder.Entity("Crypto.Core.Entities.TokenValueHistoryEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -41,12 +64,7 @@ namespace Crypto.Core.Persistence.Migrations
                         .HasColumnType("DATETIME");
 
                     b.Property<string>("TokenCode")
-                        .IsRequired()
                         .HasMaxLength(25)
-                        .HasColumnType("VARCHAR");
-
-                    b.Property<string>("TokenCode1")
-                        .IsRequired()
                         .HasColumnType("VARCHAR");
 
                     b.Property<double>("Value")
@@ -54,25 +72,34 @@ namespace Crypto.Core.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TokenCode1");
+                    b.HasIndex("TokenCode");
 
-                    b.ToTable("TokensHistory");
+                    b.ToTable("TokensValueHistory");
                 });
 
-            modelBuilder.Entity("Crypto.Core.Entities.TokenHistoryEntity", b =>
+            modelBuilder.Entity("Crypto.Core.Entities.TokenExchangeHistoryEntity", b =>
                 {
                     b.HasOne("Crypto.Core.Entities.TokenEntity", "Token")
-                        .WithMany("History")
-                        .HasForeignKey("TokenCode1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany("ExchangeHistory")
+                        .HasForeignKey("TokenCode");
+
+                    b.Navigation("Token");
+                });
+
+            modelBuilder.Entity("Crypto.Core.Entities.TokenValueHistoryEntity", b =>
+                {
+                    b.HasOne("Crypto.Core.Entities.TokenEntity", "Token")
+                        .WithMany("ValueHistory")
+                        .HasForeignKey("TokenCode");
 
                     b.Navigation("Token");
                 });
 
             modelBuilder.Entity("Crypto.Core.Entities.TokenEntity", b =>
                 {
-                    b.Navigation("History");
+                    b.Navigation("ExchangeHistory");
+
+                    b.Navigation("ValueHistory");
                 });
 #pragma warning restore 612, 618
         }

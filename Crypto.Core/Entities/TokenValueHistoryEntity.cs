@@ -1,11 +1,11 @@
 ﻿namespace Crypto.Core.Entities;
 
-public class TokenHistoryEntity
+public class TokenValueHistoryEntity
 {
     public int Id { get; set; }
-    public required string TokenCode { get; set; }
     public  DateTime RecordedDate { get; set; }
     public decimal Value{ get; set; }
 
-    public TokenEntity Token { get; set; }
+    public string? TokenCode { get; set; }
+    public TokenEntity? Token { get; set; }
 }

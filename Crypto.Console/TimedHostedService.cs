@@ -23,8 +23,8 @@ public class TimedHostedService : IHostedService, IDisposable
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        _timerDataCollector = new Timer(ExecuteDataCollectorTask, null, TimeSpan.FromSeconds(30), TimeSpan.FromMilliseconds(-1));
-        //_timerWatcher = new Timer(ExecuteTaskWatcher, null, TimeSpan.FromSeconds(30), TimeSpan.FromMilliseconds(-1));
+        _timerDataCollector = new Timer(ExecuteDataCollectorTask, null, TimeSpan.FromSeconds(60), TimeSpan.FromMilliseconds(-1));
+        _timerWatcher = new Timer(ExecuteTaskWatcher, null, TimeSpan.FromMinutes(5), TimeSpan.FromMilliseconds(-1));
         return Task.CompletedTask;
     }
 

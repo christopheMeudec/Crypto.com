@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Json;
 using Crypto.Core.Dto;
 using Crypto.Core.Settings;
+using Microsoft.Extensions.Options;
 
 namespace Crypto.Core.Services;
 
@@ -10,11 +11,11 @@ public class CryptoService : ICryptoService
     private readonly HttpClient _httpClient;
     private readonly CryptoSettings _cryptoSettings;
 
-    public CryptoService(CryptoSettings cryptoSettings)
+    public CryptoService(HttpClient httpClient, CryptoSettings cryptoSettings)
     {
         _cryptoSettings = cryptoSettings;
 
-        _httpClient = new HttpClient();
+        _httpClient = httpClient;
         _httpClient.BaseAddress = new Uri(cryptoSettings.Url);
     }
 
@@ -45,6 +46,7 @@ public class CryptoService : ICryptoService
 
         return result.Result.Data;
     }
+
     private static string Sign(string time)
     {
         return string.Empty;
