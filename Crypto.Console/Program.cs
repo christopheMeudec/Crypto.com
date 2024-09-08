@@ -25,6 +25,9 @@ var host = new HostBuilder()
         var cryptoSettings = hostContext.Configuration.GetSection("CryptoSettings").Get<CryptoSettings>();
         services.AddSingleton<CryptoSettings>(cryptoSettings);
 
+        var telegramSettings = hostContext.Configuration.GetSection("TelegramSettings").Get<TelegramSettings>();
+        services.AddSingleton<TelegramSettings>(telegramSettings);
+
         services.AddScoped<DataContext>();
         services.AddScoped<IDataRepository, DataRepository>();
 
@@ -32,7 +35,7 @@ var host = new HostBuilder()
 
         services.AddScoped<ICryptoService, CryptoService>();
         services.AddScoped<IDataCollectorService, DataCollectorService>();
-        services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<INotificationService, TelegramNotificationService>();
         services.AddScoped<IWatcherService, WatcherService>();
 
         services.AddHostedService<TimedHostedService>();

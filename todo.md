@@ -1,4 +1,4 @@
-Si le prix est > au prix d'achat & que le prix à fait +10% sur les 15 dernières minutes
+Si le prix est > au prix d'achat & que le prix à fait +10% sur les 5 dernières minutes
 => Alerte si pas d'alerte sur les 15 dernières minutes sur cette valeur
 
 

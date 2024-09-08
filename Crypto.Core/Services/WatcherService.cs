@@ -8,25 +8,30 @@ public class WatcherService(IDataRepository dataRepository, INotificationService
 {
     public async Task CheckChanges(CancellationToken cancellationToken)
     {
-        foreach (var currentCoin in await dataRepository.GetCoins(cancellationToken))
+        foreach (var currentToken in await dataRepository.GetTokens(cancellationToken))
         {
-            if (!currentCoin.ValueHistory.Any() || !currentCoin.ExchangeHistory.Any())
+            if (!currentToken.ValueHistory.Any() || !currentToken.ExchangeHistory.Any())
                 continue;
 
-            var currentValue = currentCoin.ValueHistory.MaxBy(c => c.RecordedDate)!.Value;
-            var tokenExchangeHistoryEntity = currentCoin.ExchangeHistory.MaxBy(c =>c.RecordedDate);
+            var currentValue = currentToken.ValueHistory.MaxBy(c => c.RecordedDate)!.Value;
+            var tokenExchangeHistoryEntity = currentToken.ExchangeHistory.MaxBy(c => c.RecordedDate);
 
             var variation = 100 - (currentValue * 100 / tokenExchangeHistoryEntity!.Value);
 
-            if (variation is >= 10 && tokenExchangeHistoryEntity.ExchangeType == ExchangeTypeEnum.Buy)
+            switch (variation)
             {
-                var message = $"[{variation}%] Coin {currentCoin.TokenCode} has changed value from {tokenExchangeHistoryEntity.Value} to {currentValue}";
-                await notificationService.Notify(message, cancellationToken);
-            }
-            else if (variation is <= 10 && tokenExchangeHistoryEntity.ExchangeType == ExchangeTypeEnum.Sell)
-            {
-                var message = $"[{variation}%] Coin {currentCoin.TokenCode} has changed value from {tokenExchangeHistoryEntity.Value} to {currentValue}";
-                await notificationService.Notify(message, cancellationToken);
+                case >= 10 when tokenExchangeHistoryEntity.ExchangeType == ExchangeTypeEnum.Buy:
+                {
+                    var message = $"[{variation}%] Token {currentToken.TokenCode} has changed value from {tokenExchangeHistoryEntity.Value} to {currentValue}";
+                    await notificationService.Notify(message, cancellationToken);
+                    break;
+                }
+                case <= 10 when tokenExchangeHistoryEntity.ExchangeType == ExchangeTypeEnum.Sell:
+                {
+                    var message = $"[{variation}%] Token {currentToken.TokenCode} has changed value from {tokenExchangeHistoryEntity.Value} to {currentValue}";
+                    await notificationService.Notify(message, cancellationToken);
+                    break;
+                }
             }
         }
     }

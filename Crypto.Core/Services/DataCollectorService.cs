@@ -8,7 +8,7 @@ public class DataCollectorService(IDataRepository dataRepository, ICryptoService
 {
     public async Task CollectDataAsync(CancellationToken cancellationToken)
     {
-        foreach (var currentCoin in await dataRepository.GetCoins(cancellationToken))
+        foreach (var currentCoin in await dataRepository.GetTokens(cancellationToken))
         {
             var valuation = await cryptoService.GeValuations(currentCoin.TokenCode, 5, cancellationToken);
             var currentValue = decimal.Parse(valuation.OrderByDescending(o => o.Timestamp).First().Value, CultureInfo.InvariantCulture);

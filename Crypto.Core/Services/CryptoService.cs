@@ -42,7 +42,8 @@ public class CryptoService : ICryptoService
 
     public async Task<List<ValuationsResponseDto>> GeValuations(string instrumentName, int points = 100, CancellationToken cancellationToken = default)
     {
-        var result = await _httpClient.GetFromJsonAsync<CryptoResponseDto<List<ValuationsResponseDto>>>(CryptoConstants.ValuationsUrl + $"?instrument_name={instrumentName}&valuation_type=index_price&count={points}", cancellationToken: cancellationToken);
+        var valuationsUrl = $"{CryptoConstants.ValuationsUrl}?instrument_name={instrumentName}&valuation_type=index_price&count={points}";
+        var result = await _httpClient.GetFromJsonAsync<CryptoResponseDto<List<ValuationsResponseDto>>>(valuationsUrl, cancellationToken: cancellationToken);
 
         return result.Result.Data;
     }

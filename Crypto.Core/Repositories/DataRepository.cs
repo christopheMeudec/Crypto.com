@@ -6,7 +6,7 @@ namespace Crypto.Core.Repositories;
 
 public class DataRepository(DataContext dataContext) : IDataRepository
 {
-    public async Task<IEnumerable<TokenEntity>> GetCoins(CancellationToken cancellationToken)
+    public async Task<IEnumerable<TokenEntity>> GetTokens(CancellationToken cancellationToken)
     {
         return await dataContext.Tokens.ToListAsync(cancellationToken);
     }
@@ -26,6 +26,6 @@ public class DataRepository(DataContext dataContext) : IDataRepository
 
 public interface IDataRepository
 {
-    Task<IEnumerable<TokenEntity>> GetCoins(CancellationToken cancellationToken);
+    Task<IEnumerable<TokenEntity>> GetTokens(CancellationToken cancellationToken);
     Task AddTokenValue(string tokenCode, decimal currentValue, CancellationToken cancellationToken);
 }
