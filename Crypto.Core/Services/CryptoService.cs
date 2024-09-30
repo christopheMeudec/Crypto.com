@@ -40,12 +40,20 @@ public class CryptoService : ICryptoService
         return result.Result.Data.First();
     }
 
-    public async Task<List<ValuationsResponseDto>> GeValuations(string instrumentName, int points = 100, CancellationToken cancellationToken = default)
+    public async Task<List<ValuationsResponseDto>> GeValuations(string instrumentName, int points = 5, CancellationToken cancellationToken = default)
     {
-        var valuationsUrl = $"{CryptoConstants.ValuationsUrl}?instrument_name={instrumentName}&valuation_type=index_price&count={points}";
-        var result = await _httpClient.GetFromJsonAsync<CryptoResponseDto<List<ValuationsResponseDto>>>(valuationsUrl, cancellationToken: cancellationToken);
+        try
+        {
+            var valuationsUrl = $"{CryptoConstants.ValuationsUrl}?instrument_name={instrumentName}&valuation_type=index_price&count={points}";
+            var result = await _httpClient.GetFromJsonAsync<CryptoResponseDto<List<ValuationsResponseDto>>>(valuationsUrl, cancellationToken: cancellationToken);
 
-        return result.Result.Data;
+            return result.Result.Data;
+        }
+        catch (Exception e)
+        {
+            return default;
+        }
+        
     }
 
     private static string Sign(string time)

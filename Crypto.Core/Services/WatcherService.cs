@@ -16,22 +16,22 @@ public class WatcherService(IDataRepository dataRepository, INotificationService
             var currentValue = currentToken.ValueHistory.MaxBy(c => c.RecordedDate)!.Value;
             var tokenExchangeHistoryEntity = currentToken.ExchangeHistory.MaxBy(c => c.RecordedDate);
 
-            var variation = 100 - (currentValue * 100 / tokenExchangeHistoryEntity!.Value);
+            var variation = Math.Round(100 - (currentValue * 100 / tokenExchangeHistoryEntity!.Value), 2);
 
             switch (variation)
             {
-                case >= 10 when tokenExchangeHistoryEntity.ExchangeType == ExchangeTypeEnum.Buy:
-                {
-                    var message = $"[{variation}%] Token {currentToken.TokenCode} has changed value from {tokenExchangeHistoryEntity.Value} to {currentValue}";
-                    await notificationService.Notify(message, cancellationToken);
-                    break;
-                }
-                case <= 10 when tokenExchangeHistoryEntity.ExchangeType == ExchangeTypeEnum.Sell:
-                {
-                    var message = $"[{variation}%] Token {currentToken.TokenCode} has changed value from {tokenExchangeHistoryEntity.Value} to {currentValue}";
-                    await notificationService.Notify(message, cancellationToken);
-                    break;
-                }
+                case >= 2 when tokenExchangeHistoryEntity.ExchangeType == ExchangeTypeEnum.Buy:
+                    {
+                        var message = $"[{variation}%] Token {currentToken.TokenCode} has changed value from {tokenExchangeHistoryEntity.Value} to {currentValue}";
+                        await notificationService.Notify(message, cancellationToken);
+                        break;
+                    }
+                case <= 2 when tokenExchangeHistoryEntity.ExchangeType == ExchangeTypeEnum.Sell:
+                    {
+                        var message = $"[{variation}%] Token {currentToken.TokenCode} has changed value from {tokenExchangeHistoryEntity.Value} to {currentValue}";
+                        await notificationService.Notify(message, cancellationToken);
+                        break;
+                    }
             }
         }
     }

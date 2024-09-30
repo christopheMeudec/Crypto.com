@@ -8,18 +8,21 @@ public class DataRepository(DataContext dataContext) : IDataRepository
 {
     public async Task<IEnumerable<TokenEntity>> GetTokens(CancellationToken cancellationToken)
     {
-        return await dataContext.Tokens.ToListAsync(cancellationToken);
+        return await dataContext.Tokens
+            .Include(b => b.ValueHistory)
+            .Include(b => b.ExchangeHistory)
+            .ToListAsync(cancellationToken);
     }
 
-    public async Task AddTokenValue(string tokenCode, decimal currentValue, CancellationToken cancellationToken)
+    public async Task AddTokenValues(List<TokenValueHistoryEntity> tokenHistory, CancellationToken cancellationToken)
     {
-        await dataContext.TokensValueHistory.AddAsync(new TokenValueHistoryEntity
+        foreach (var value in tokenHistory)
         {
-            TokenCode = tokenCode,
-            RecordedDate = DateTime.Now,
-            Value = currentValue
-        }, cancellationToken);
-
+            if (!await dataContext.TokensValueHistory.AnyAsync(c => c.TokenCode == value.TokenCode && c.RecordedDate == value.RecordedDate, cancellationToken))
+            {
+                await dataContext.TokensValueHistory.AddAsync(value, cancellationToken);
+            }
+        }
         await dataContext.SaveChangesAsync(cancellationToken);
     }
 }
@@ -27,5 +30,5 @@ public class DataRepository(DataContext dataContext) : IDataRepository
 public interface IDataRepository
 {
     Task<IEnumerable<TokenEntity>> GetTokens(CancellationToken cancellationToken);
-    Task AddTokenValue(string tokenCode, decimal currentValue, CancellationToken cancellationToken);
+    Task AddTokenValues(List<TokenValueHistoryEntity> tokenHistory, CancellationToken cancellationToken);
 }

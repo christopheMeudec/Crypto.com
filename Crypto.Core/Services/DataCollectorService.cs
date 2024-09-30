@@ -1,4 +1,4 @@
-using System.Globalization;
+using Crypto.Core.Entities;
 using Crypto.Core.Repositories;
 
 namespace Crypto.Core.Services;
@@ -10,10 +10,17 @@ public class DataCollectorService(IDataRepository dataRepository, ICryptoService
     {
         foreach (var currentCoin in await dataRepository.GetTokens(cancellationToken))
         {
-            var valuation = await cryptoService.GeValuations(currentCoin.TokenCode, 5, cancellationToken);
-            var currentValue = decimal.Parse(valuation.OrderByDescending(o => o.Timestamp).First().Value, CultureInfo.InvariantCulture);
+            var valuations = await cryptoService.GeValuations(currentCoin.TokenCode, 5, cancellationToken);
 
-            await dataRepository.AddTokenValue(currentCoin.TokenCode, currentValue, cancellationToken);
+            var tokenValueHistory = valuations.Select(
+                c => new TokenValueHistoryEntity
+                {
+                    TokenCode = currentCoin.TokenCode,
+                    RecordedDate = c.Timestamp,
+                    Value = c.Value
+                }).ToList();
+
+            await dataRepository.AddTokenValues(tokenValueHistory, cancellationToken);
         }
     }
 }

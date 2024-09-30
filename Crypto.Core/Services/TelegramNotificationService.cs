@@ -11,7 +11,14 @@ public class TelegramNotificationService(TelegramSettings telegramSettings) : IN
     //TODO: Replace string message by object to have more details (logo, priority depending on variation value)
     public async Task Notify(string message, CancellationToken cancellationToken)
     {
-        await _telegramBotClient.SendTextMessageAsync(telegramSettings.ChatId, message, parseMode: ParseMode.Markdown, cancellationToken: cancellationToken);
+        try
+        {
+            await _telegramBotClient.SendTextMessageAsync(telegramSettings.ChatId, message, parseMode: ParseMode.Markdown, cancellationToken: cancellationToken);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
     }
 }
 

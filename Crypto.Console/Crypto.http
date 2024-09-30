@@ -16,10 +16,11 @@ GET https://uat-api.3ona.co/exchange/v1/public/get-valuations?instrument_name=EN
 
 
 ###
-GET https://uat-api.3ona.co/exchange/v1/public/get-valuations?instrument_name=ETHUSD-INDEX&valuation_type=index_price&count=5
+GET https://uat-api.3ona.co/exchange/v1/public/get-valuations?instrument_name=ENS_USD
 
 ###
-GET https://uat-api.3ona.co/v2/public/get-ticker?instrument_name=ENS
+GET https://uat-api.3ona.co/v2/public/get-ticker?instrument_name=ENS_USD
 
 ###
-GET https://uat-api.3ona.co/public/get-trades?instrument_name=BTCUSD-PERP&count=5
+GET https://uat-api.3ona.co/public/get-trades?instrument_name=ENS_USD&count=5
+
